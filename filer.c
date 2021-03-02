@@ -37,6 +37,7 @@ enum {
 	MOUNTVMC0,
 	MOUNTVMC1,
 	GETSIZE,
+	TIMEMANIP,
 	NUM_MENU
 } R1_menu_enum;
 
@@ -1380,7 +1381,7 @@ int menu(const char *path, FILEINFO *file)
 	            )))
 		write_disabled = 1;
 
-	if (!strcmp(path, "hdd0:/") || path[0] == 0)  //No menu cmds in partition/device lists
+	if (!strcmp(path, "hdd0:/") || !strcmp(path, "MISC/") || path[0] == 0)  //No menu cmds in partition/device lists
 		menu_disabled = 1;
 
 	if (menu_disabled) {
@@ -1412,6 +1413,18 @@ int menu(const char *path, FILEINFO *file)
 	} else {
 		enable[RENAME] = FALSE;
 	}
+
+	if (                                                        //if
+	    (file->stats.AttrFile & sceMcFileAttrSubdir) &&         //pointing to a folder
+	    (strcmp(file->name, "..")) &&                           //it isnt the "parent directory button"
+	    ((!strcmp(path, "mc0:/")) || (!strcmp(path, "mc1:/")))  //we're on Memory card roots
+	) {
+		enable[TIMEMANIP] = TRUE;
+	} else {
+		enable[TIMEMANIP] = FALSE;
+	}  //enable time manip, otherwise disable it
+
+
 
 	if ((file->stats.AttrFile & sceMcFileAttrSubdir) || !strncmp(path, "vmc", 3) || !strncmp(path, "mc", 2)) {
 		enable[MOUNTVMC0] = FALSE;  //forbid insane VMC mounting
@@ -1711,6 +1724,41 @@ u64 getFileSize(const char *path, const FILEINFO *file)
 //------------------------------
 //endfunc getFileSize
 //--------------------------------------------------------------
+
+
+void time_manip(const char *path, const FILEINFO *file, char **_msg0)
+{
+	int rett, slot;
+	char *funcret;
+	slot = path[2] - '0';
+//char *result,*end;
+/*=====================================================================================================*/
+#define ARRAY_ENTRIES 64
+	static sceMcTblGetDir mcDirAAA[ARRAY_ENTRIES] __attribute__((aligned(64)));
+	static sceMcStDateTime new_mtime;  //Maxium Timestamp, for the ones who does not speak Spanish
+	new_mtime.Resv2 = 0;
+	new_mtime.Sec = 59;
+	new_mtime.Min = 59;
+	new_mtime.Hour = 23;
+	new_mtime.Day = 31;
+	new_mtime.Month = 12;
+	new_mtime.Year = 2099;
+	mcDirAAA->_Modify = new_mtime;
+	mcDirAAA->_Create = new_mtime;
+	/*=====================================================================================================*/
+
+
+	rett = mcSetFileInfo(slot, 0, file->name, mcDirAAA, 0x02);
+	if (rett == 0)
+		sprintf(_msg0, "success, folder [%s]  Mc Slot [%d] .", file->name, slot);
+	if (rett < 0)
+		sprintf(_msg0, "error [%d], folder[%s]  Mc Slot=[%d] .", rett, file->name, slot);
+	mcSync(0, NULL, &rett);
+}  // TIMEMANIP
+//------------------------------
+//endfunc time_manip
+//--------------------------------------------------------------
+
 int delete (const char *path, const FILEINFO *file)
 {
 	FILEINFO files[MAX_ENTRY];
@@ -3645,6 +3693,15 @@ int getFilePath(char *out, int cnfmode)
 					else if (ret == GETSIZE) {
 						submenu_func_GetSize(msg0, path, files);
 					}  //ends GETSIZE
+					else if (ret == TIMEMANIP) {
+						time_manip(path, &files[browser_sel], &msg0);
+						browser_pushed = FALSE;
+					}
+
+
+
+
+
 					   //R1 menu handling is completed above
 				} else if ((!swapKeys && new_pad & PAD_CROSS) || (swapKeys && new_pad & PAD_CIRCLE)) {
 					if (browser_sel != 0 && path[0] != 0 && strcmp(path, "hdd0:/")) {
@@ -3852,9 +3909,18 @@ int getFilePath(char *out, int cnfmode)
 						iconcolr = COLOR_GRAPH1;
 					} else {
 						iconbase = ICON_FILE;
-						if (genCmpFileExt(files[top + i].name, "ELF"))
+						if  (
+							genCmpFileExt(files[top + i].name, "ELF") ||
+							genCmpFileExt(files[top + i].name, "KELF")
+							)
 							iconcolr = COLOR_GRAPH2;
-						else if (genCmpFileExt(files[top + i].name, "TXT") || genCmpFileExt(files[top + i].name, "JPG") || genCmpFileExt(files[top + i].name, "JPEG"))
+						else if (
+								genCmpFileExt(files[top + i].name, "TXT")  || 
+								genCmpFileExt(files[top + i].name, "INI")  ||
+						    	genCmpFileExt(files[top + i].name, "CFG")  ||
+								genCmpFileExt(files[top + i].name, "JPG")  || 
+								genCmpFileExt(files[top + i].name, "JPEG")
+								)
 							iconcolr = COLOR_GRAPH4;
 						else
 							iconcolr = COLOR_GRAPH3;
