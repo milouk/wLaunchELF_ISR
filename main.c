@@ -295,26 +295,27 @@ static void Show_About_uLE(void)
 		//Display section
 		if (event || post_event) {  //NB: We need to update two frame buffers per event
 			clrScr(setting->color[COLOR_BACKGR]);
-			sprintf(TextRow, "About wLaunchELF %s  %s", ULE_VERSION, ULE_VERDATE);
+			sprintf(TextRow, "About wLaunchELF %s commit [%s]  ", ULE_VERSION, GIT_HASH);
 			PrintPos(03, hpos, TextRow);
-			sprintf(TextRow, "                         commit: %s", GIT_HASH);
+			sprintf(TextRow, " mod by matias israelson    ");
 			PrintPos(04, hpos, TextRow);
-			PrintPos(05, hpos, "Project maintainers:");
-			PrintPos(-1, hpos, "  sp193");
-			PrintPos(-1, hpos, "  AKuHAK");
-			PrintPos(-1, hpos, "");
+			sprintf(TextRow, "build= %s  %s", __DATE__, __TIME__);
+			PrintPos(05, hpos, TextRow);
+			PrintPos(-1, hpos, "  Project maintainers:");
+			PrintPos(-1, hpos, "  sp193 and AKuHAK");
 			PrintPos(-1, hpos, "uLaunchELF Project maintainers:");
 			PrintPos(-1, hpos, "  Eric Price       (aka: 'E P')");
 			PrintPos(-1, hpos, "  Ronald Andersson (aka: 'dlanor')");
-			PrintPos(-1, hpos, "");
+			PrintPos(-1, hpos, "-----------------------------------------------");
 			PrintPos(-1, hpos, "Other contributors:");
 			PrintPos(-1, hpos, "  Polo35, radad, Drakonite, sincro");
 			PrintPos(-1, hpos, "  kthu, Slam-Tilt, chip, pixel, Hermes");
 			PrintPos(-1, hpos, "  and others in the PS2Dev community");
-			PrintPos(-1, hpos, "");
+			PrintPos(-1, hpos, "-----------------------------------------------");
 			PrintPos(-1, hpos, "Main release site:");
-			PrintPos(-1, hpos, "  \"https://github.com/AKuHAK/uLaunchELF/releases\"");
-			PrintPos(-1, hpos, "");
+			PrintPos(-1, hpos, "  \"https://github.com/ps2homebrew/wLaunchELF/releases\"");
+			PrintPos(-1, hpos, "Mod release site:");
+			PrintPos(-1, hpos, "  \"https://github.com/israpps/wLaunchELF_ISR\"");
 			PrintPos(-1, hpos, "Ancestral project: LaunchELF v3.41");
 			PrintPos(-1, hpos, "Created by:        Mirakichi");
 		}  //ends if(event||post_event)
