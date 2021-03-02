@@ -30,7 +30,6 @@ jobs:
         
     - name: make lang package and english elf package
       run: |
-       cd ..
        HASH=${GITHUB_SHA::7}
        zip "wLaunchELF-STABLE-ENG[$HASH].zip" *.ELF
        
