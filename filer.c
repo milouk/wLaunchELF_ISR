@@ -1518,6 +1518,8 @@ int menu(const char *path, FILEINFO *file)
 					sprintf(tmp, "%s vmc1:", LNG(Mount));
 				else if (i == GETSIZE)
 					strcpy(tmp, LNG(Get_Size));
+				else if (i == TIMEMANIP)
+					strcpy(tmp, LNG(time_manip));
 
 				if (enable[i])
 					color = setting->color[COLOR_TEXT];
