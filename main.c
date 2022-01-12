@@ -1210,7 +1210,7 @@ static void setupPowerOff(void)
 		}
 		poweroffInit();
 		poweroffSetCallback((void *)poweroffHandler, NULL);
-		//load_ps2dev9();
+		if (ps2dev9_loaded) load_ps2dev9();
 		done_setupPowerOff = 1;
 	}
 }
